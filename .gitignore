@@ -2,3 +2,6 @@ Library
 GameAIDemo.csproj
 GameAIDemo.sln
 .vs
+Temp
+GameAI.CSharp.csproj
+GameAI.sln

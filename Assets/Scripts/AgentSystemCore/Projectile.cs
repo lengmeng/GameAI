@@ -14,7 +14,7 @@ namespace GameAI.AgentCore
 
         void Update()
         {
-            
+            if (!set) return;
         }
     }
 }
