@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace GameAI.Behaviours
 {
+    /// <summary>
+    /// 规避tag为Agent的对象
+    /// </summary>
     public class AvoidAgent : AgentBehaviour
     {
         public float collisionRadius = 0.4f;
@@ -25,12 +28,12 @@ namespace GameAI.Behaviours
         public override Steering GetSteering()
         {
             // 用于计算周围所有Agent的距离和速度
-            float shortestTime = Mathf.Infinity;
+            float shortestTime = Mathf.Infinity; // 保存最小碰撞时间
             GameObject firstTarget = null;
             float firstMinSeparation = 0.0f;
             float firstDistance = 0.0f;
-            Vector3 firstRelativePos = Vector3.zero;
-            Vector3 firstRelativeVel = Vector3.zero;
+            Vector3 firstRelativePos = Vector3.zero;    // 与最先碰撞对象的相对位置
+            Vector3 firstRelativeVel = Vector3.zero;    // 与最先碰撞对象的相对速度
 
             for(int i = 0; i < targets.Length; ++i)
             {
@@ -43,15 +46,20 @@ namespace GameAI.Behaviours
                 // 处于第一个相对方向的标量 得到距离矢量在相对方向上的投影值，也就是相对方向上的移动距离
                 // 距离再除以一次相对方向的标量(这里应该理解为速度)，得到相对方向上移动的时间，也就得到碰撞的时间
                 timeToCollision /= relativeSpeed * relativeSpeed * -1;
-                // 
+
+                // 相对移动的结果 使得两者之间的距离小于2 * collisionRadius时 才继续
                 float distance = relativePos.magnitude;
                 float minSeparation = distance - relativeSpeed * timeToCollision;
                 if (minSeparation > 2 * collisionRadius)
                     continue;
+
+                // 更新数据
                 if(timeToCollision > 0.0f && timeToCollision < shortestTime)
                 {
                     shortestTime = timeToCollision;
                     firstTarget = targets[i];
+                    firstMinSeparation = minSeparation;
+                    firstDistance = distance;
                     firstRelativePos = relativePos;
                     firstRelativeVel = relativeVel;
                 }
@@ -60,13 +68,14 @@ namespace GameAI.Behaviours
                     return null;
 
                 Steering steering = new Steering();
-                if (firstMinSeparation <= 0.0f || firstDistance < 2 * collisionRadius)
-                    firstRelativePos = firstTarget.transform.position;
-                else
-                    firstRelativePos += firstRelativeVel * shortestTime;
 
+                if (firstMinSeparation <= 0.0f || firstDistance < 2 * collisionRadius)
+                    firstRelativePos = firstTarget.transform.position;      // 说明对方在相对移动的方向上，那么位移方向就是对方的方向
+                else
+                    firstRelativePos += firstRelativeVel * shortestTime;    // 得到自身碰撞需要的位移方向
                 firstRelativePos.Normalize();
-                steering.linear = -firstRelativePos * agent.maxAccel;
+
+                steering.linear = -firstRelativePos * agent.maxAccel;       // 往反方向移动 避开碰撞
                 return steering;
             }
             return base.GetSteering();

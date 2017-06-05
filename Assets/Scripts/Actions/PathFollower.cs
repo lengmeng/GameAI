@@ -7,7 +7,7 @@ using UnityEngine;
 namespace GameAI.Actions
 {
     /// <summary>
-    /// 路径跟随 曾加速度能够避免出现冲出头的现象
+    /// 路径跟随 曾加速度能够避免出现冲出头的现象 （存在各种问题，如成环时，路程结束时）
     /// </summary>
     public class PathFollower : Seek
     {
@@ -25,6 +25,7 @@ namespace GameAI.Actions
 
         public override Steering GetSteering()
         {
+            // 路程的获取和点的获取不统一 导致问题
             currentParam = path.GetParam(transform.position, currentParam);
             float targetParam = currentParam + pathOffset;
             target.transform.position = path.GetPosition(targetParam);
