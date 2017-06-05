@@ -13,6 +13,10 @@ namespace GameAI.AgentCore
         public List<GameObject> nodes = new List<GameObject>();
         List<PathSegment> segments;
 
+        // 存在小于90度的角时，由于投影值得到的结果无法超过当前路程值(即lastParam <= tempParam不成立)，
+        // 无法进入下一段路程 导致在拐角处卡住，因此使用修正值增大判定使其能够出拐角
+        public float Offset = 1.5f; 
+
         void Start()
         {
             segments = GetSegments();
@@ -50,7 +54,7 @@ namespace GameAI.AgentCore
             foreach (PathSegment ps in segments)
             {
                 tempParam += Vector3.Distance(ps.a, ps.b);
-                if (lastParam <= tempParam)
+                if (lastParam + Offset <= tempParam)
                 {
                     currentSegment = ps;
                     break;
@@ -85,7 +89,7 @@ namespace GameAI.AgentCore
             foreach (PathSegment ps in segments)
             {
                 tempParam += Vector3.Distance(ps.a, ps.b);
-                if (param <= tempParam)
+                if (param + Offset <= tempParam)
                 {
                     currentSegment = ps;
                     break;

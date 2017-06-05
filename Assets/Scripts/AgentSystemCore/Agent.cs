@@ -20,16 +20,17 @@ namespace GameAI.AgentCore
         public float orientation;   // 方向 以Y轴为旋转角度
         public float rotation;
         public Vector3 velocity;    // 速度
+
+        public float priorityThreshold; // 优先级阈值 当对steering的修改超过它时 则先执行这部分行为
+
         protected Steering steering = null;
+
+        private Dictionary<int, List<Steering>> groups;
 
         void Start()
         {
             velocity = Vector3.zero;
-        }
-
-        public void SetSteering(Steering steering)
-        {
-            this.steering = steering;
+            groups = new Dictionary<int, List<Steering>>();
         }
 
         /// <summary>
@@ -55,6 +56,10 @@ namespace GameAI.AgentCore
         /// </summary>
         public virtual void LateUpdate()
         {
+            // 通过优先级机制获取混合后的行为
+            steering = GetPrioritySteering();
+            groups.Clear();
+
             if (steering == null) return;
 
             velocity += steering.linear * Time.deltaTime;   // 加速度 * 时间 = 速度
@@ -78,6 +83,44 @@ namespace GameAI.AgentCore
             }
 
             steering = null;
+        }
+
+        /// <summary>
+        /// 设置Steering数据
+        /// </summary>
+        /// <param name="steering"></param>
+        /// <param name="priority"></param>
+        public void SetSteering(Steering steering, int priority)
+        {
+            if (steering != null)
+            {
+                if (!groups.ContainsKey(priority))
+                {
+                    groups.Add(priority, new List<Steering>());
+                }
+
+                groups[priority].Add(steering);
+            }
+        }
+
+        private Steering GetPrioritySteering()
+        {
+            Steering steering = null;
+            float sqrThreshold = priorityThreshold * priorityThreshold;
+            foreach(var group in groups.Values) // TODO 优化foreach
+            {
+                steering = new Steering();
+                foreach(Steering singleSteering in group)
+                {
+                    steering.linear += singleSteering.linear;
+                    steering.angular += singleSteering.angular;
+                }
+                if(steering.linear.sqrMagnitude > sqrThreshold || Mathf.Abs(steering.angular) > priorityThreshold)
+                {
+                    return steering;
+                }
+            }
+            return null;
         }
     }
 }

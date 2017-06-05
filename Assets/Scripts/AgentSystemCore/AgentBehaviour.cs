@@ -11,15 +11,18 @@ namespace GameAI.AgentCore
     {
         public GameObject target;   // 目标
         protected Agent agent;      // Agent组件，用于控制对象
+        public int priority = 1;    // 基于优先级的行为混合(优先级高的行为具有更高的奉献)
 
         public virtual void Awake()
         {
             agent = gameObject.GetComponent<Agent>();
         }
+
         public virtual void Update()
         {
-            agent.SetSteering(GetSteering());
+            agent.SetSteering(GetSteering(), priority);
         }
+
         public virtual Steering GetSteering()
         {
             return new Steering();
@@ -53,5 +56,6 @@ namespace GameAI.AgentCore
 
             return vector.normalized;
         }
+        
     }
 }

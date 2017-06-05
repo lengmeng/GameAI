@@ -7,13 +7,13 @@ namespace GameAI.Actions
 {
     /// <summary>
     /// 漫步 
-    /// 在正前方offset的位置的radius范围圈上 随机选取左右rate角度的一个点作为下一个漫步的目标点
+    /// 在正前方offset的位置的radius范围圈上 随机选取左右rate角度的一个点作为下一个漫步的目标点 (每帧都去取点，导致问题)
     /// </summary>
     public class Wander : Face
     {
         public float offset;    // 移动距离
         public float radius;    // 目标点选取范围
-        public float rate;      // 
+        public float rate;      // 角度
 
         public override void Awake()
         {
@@ -34,6 +34,7 @@ namespace GameAI.Actions
             targetAux.transform.position = targetPosition;  // 将目标设置到下一个漫步点（使得Face能够正常面向）
             
             Steering steering = base.GetSteering();         // 得到面向目标点的旋转
+            steering = steering == null ? new Steering() : steering;
             // 前进
             steering.linear = targetAux.transform.position - transform.position;
             steering.linear.Normalize();

@@ -25,7 +25,6 @@ namespace GameAI.Actions
 
         public override Steering GetSteering()
         {
-            // 路程的获取和点的获取不统一 导致问题
             currentParam = path.GetParam(transform.position, currentParam);
             float targetParam = currentParam + pathOffset;
             target.transform.position = path.GetPosition(targetParam);
