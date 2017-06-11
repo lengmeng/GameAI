@@ -41,10 +41,9 @@ namespace GameAI.Behaviours
                 Vector3 relativePos = targets[i].transform.position - transform.position;
                 Vector3 relativeVel = targetAgent.velocity - agent.velocity;
                 float relativeSpeed = relativeVel.magnitude;
-                // 计算碰撞时间 
-                float timeToCollision = Vector3.Dot(relativePos, relativeVel); // 点积得到 距离矢量 在相对方向上的投影的标量 * 相对方向的标量
-                // 处于第一个相对方向的标量 得到距离矢量在相对方向上的投影值，也就是相对方向上的移动距离
-                // 距离再除以一次相对方向的标量(这里应该理解为速度)，得到相对方向上移动的时间，也就得到碰撞的时间
+                // 相对距离与相对方向的点积，得到相对方向上的移动距离 * 相对速度的值
+                // 因此需要除以两次相对速度的值得到碰撞时间
+                float timeToCollision = Vector3.Dot(relativePos, relativeVel);
                 timeToCollision /= relativeSpeed * relativeSpeed * -1;
 
                 // 相对移动的结果 使得两者之间的距离小于2 * collisionRadius时 才继续

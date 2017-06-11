@@ -15,7 +15,6 @@ namespace GameAI.Actions
         public float pathOffset = 0.0f; // 与路线的偏差度
 
         float currentParam;
-
         public override void Awake()
         {
             base.Awake();
@@ -30,6 +29,5 @@ namespace GameAI.Actions
             target.transform.position = path.GetPosition(targetParam);
             return base.GetSteering();
         }
-
     }
 }

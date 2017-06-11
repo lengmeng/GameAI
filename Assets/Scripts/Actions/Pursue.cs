@@ -33,16 +33,15 @@ namespace GameAI.Actions
 
         public override Steering GetSteering()
         {
+            // 类似Eveada targetAux 真实目标 target 预判目标位置 maxPrediction最大预判时间
             Vector3 direction = targetAux.transform.position - transform.position;
             float distance = direction.magnitude;
             float speed = agent.velocity.magnitude;
             // 预判时间
             float prediction = speed <= distance / maxPrediction ? maxPrediction : distance / speed;
-
             target.transform.position = targetAux.transform.position;
             // 将目标的位置增至预判的位置
             target.transform.position += targetAgent.velocity * prediction;
-
             // 修改了算法参数，然后直接使用父类实现的算法
             return base.GetSteering();
         }

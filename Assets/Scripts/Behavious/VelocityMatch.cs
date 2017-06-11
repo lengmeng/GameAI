@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace GameAI.Behaviours
 {
+
     public class VelocityMatch: AgentBehaviour
     {
         public float timeToTarget = 0.1f;
-
-        private Agent m_agent;
+        protected Agent m_agent;
 
         void Start()
         {
-            m_agent = target.GetComponent<Agent>();
+            //m_agent = target.GetComponent<Agent>();
         }
 
         public override Steering GetSteering()

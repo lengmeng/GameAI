@@ -30,7 +30,7 @@ namespace GameAI.Actions
 
         public override Steering GetSteering()
         {
-            // 预判对象的走位
+            // 预判对象的走位 targetAux真实目标 target预判后的目标
             Vector3 direction = targetAux.transform.position - transform.position;
             float distance = direction.magnitude;
             float speed = agent.velocity.magnitude;

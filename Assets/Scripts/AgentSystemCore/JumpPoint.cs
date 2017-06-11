@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GameAI.AgentCore
 {
     /// <summary>
-    /// 跳跃机制的数据
+    /// 跳跃点数据
     /// </summary>
     public class JumpPoint
     {

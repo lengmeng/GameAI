@@ -13,15 +13,12 @@ namespace GameAI.AgentCore
         public List<GameObject> nodes = new List<GameObject>();
         List<PathSegment> segments;
 
-        // 存在小于90度的角时，由于投影值得到的结果无法超过当前路程值(即lastParam <= tempParam不成立)，
-        // 无法进入下一段路程 导致在拐角处卡住，因此使用修正值增大判定使其能够出拐角
-        public float Offset = 1.5f; 
-
+        private int segmentIndex; // 标记已经走过的路段
+       
         void Start()
         {
             segments = GetSegments();
         }
-
         /// <summary>
         /// 为每个寻路点两两之间生成PathSegment
         /// </summary>
@@ -51,17 +48,20 @@ namespace GameAI.AgentCore
             float param = 0f;
             PathSegment currentSegment = null;
             float tempParam = 0f;
-            foreach (PathSegment ps in segments)
+            for (int index = 0; index < segments.Count; ++index)
             {
-                tempParam += Vector3.Distance(ps.a, ps.b);
-                if (lastParam + Offset <= tempParam)
+                tempParam += Vector3.Distance(segments[index].a, segments[index].b);
+                if (lastParam <= tempParam && index >= segmentIndex)
                 {
-                    currentSegment = ps;
+                    segmentIndex = index > segmentIndex ? index : segmentIndex;
+                    currentSegment = segments[index];
                     break;
                 }
             }
+
             if (currentSegment == null)
             {
+                segmentIndex = 0;
                 return 0f;
             }
 
@@ -73,7 +73,7 @@ namespace GameAI.AgentCore
 
             param = tempParam - Vector3.Distance(currentSegment.a, currentSegment.b);
             param += pointInSegment.magnitude;
-            return param;
+            return param < lastParam ? lastParam : param;
         }
 
         /// <summary>
@@ -86,17 +86,22 @@ namespace GameAI.AgentCore
             Vector3 position = Vector3.zero;
             PathSegment currentSegment = null;
             float tempParam = 0f;
-            foreach (PathSegment ps in segments)
+            for(int index = 0; index < segments.Count; ++index)
             {
-                tempParam += Vector3.Distance(ps.a, ps.b);
-                if (param + Offset <= tempParam)
+                tempParam += Vector3.Distance(segments[index].a, segments[index].b);
+                if (param <= tempParam && index >= segmentIndex)
                 {
-                    currentSegment = ps;
+                    segmentIndex = index > segmentIndex ? index : segmentIndex;
+                    currentSegment = segments[index];
                     break;
                 }
             }
+
             if (currentSegment == null)
-                return Vector3.zero;
+            {
+                segmentIndex = segments.Count + 1;
+                return segments[0] != null ? segments[0].a : Vector3.zero ;
+            }
 
             Vector3 segmentDirection = currentSegment.b - currentSegment.a;
             segmentDirection.Normalize();
@@ -105,7 +110,7 @@ namespace GameAI.AgentCore
             position = currentSegment.a + segmentDirection * tempParam;
             return position;
         }
-
+        
         #region 编辑器功能
         void OnDrawGizmos()
         {

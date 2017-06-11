@@ -22,12 +22,14 @@ namespace GameAI.Behaviours
 
         public override Steering GetSteering()
         {
+            // targetRadius 对齐的容差值 slowRadius 旋转加减速的缓冲范围 
+            // 对比与agent的方向差，然后每帧计算一个旋转角度 慢慢旋转到与对象方向相近
             float targetOrientation = targetAgent.orientation;
             float rotation = targetOrientation - agent.orientation;
-            rotation = MapToRange(rotation);            // 修正方向
-            float rotationSize = Mathf.Abs(rotation);   // 方向差
+            rotation = MapToRange(rotation);                // 修正方向
+            float rotationSize = Mathf.Abs(rotation);       // 方向差
 
-            if (rotationSize < targetRadius) return null;
+            if (rotationSize < targetRadius) return null;   
 
             Steering steering = new Steering();
 
