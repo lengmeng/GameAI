@@ -13,7 +13,8 @@ namespace GameAI.Navigation
         protected List<Vertex> vertices;
         protected List<List<Vertex>> neighbours;
         protected List<List<float>> costs;
-        void Start()
+
+        protected virtual void Start()
         {
             Load();
         }
@@ -74,6 +75,16 @@ namespace GameAI.Navigation
                 return null;
 
             return neighbours[v.id].ToArray();
+        }
+
+        /// <summary>
+        /// 获取相邻导航点的比较对象
+        /// </summary>
+        /// <param name="v"></param>
+        /// <returns></returns>
+        public virtual Edge[] GetEdges(Vertex v)
+        {
+            return null;
         }
     }
 }
