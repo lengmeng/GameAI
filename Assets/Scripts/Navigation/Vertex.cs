@@ -11,7 +11,7 @@ namespace GameAI.Navigation
     public class Vertex : MonoBehaviour
     {
         public int id;
-        public List<Edge> neihbours;
+        public List<Edge> neighbours;
         [HideInInspector]
         public Vertex prev;
     }

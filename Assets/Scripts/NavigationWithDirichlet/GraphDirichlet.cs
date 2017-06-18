@@ -24,15 +24,15 @@ namespace GameAI.NavigationWithDirichlet
         /// </summary>
         public override void Load()
         {
-            Vertex[] verts = GameObject.FindObjectsOfType<Vertex>();
-            vertices = new List<Vertex>(verts);
+            //Vertex[] verts = GameObject.FindObjectsOfType<Vertex>();
+            //vertices = new List<Vertex>(verts);
 
-            for (int i = 0; i < vertices.Count; ++i)
-            {
-                VertexVisibility vv = vertices[i] as VertexVisibility;
-                vv.id = i;
-                vv.FindNeighbours(vertices);
-            }
+            //for (int i = 0; i < vertices.Count; ++i)
+            //{
+            //    VertexVisibility vv = vertices[i] as VertexVisibility;
+            //    vv.id = i;
+            //    vv.FindNeighbours(vertices);
+            //}
         }
         #endregion
 
@@ -131,7 +131,7 @@ namespace GameAI.NavigationWithDirichlet
         /// <returns></returns>
         public override Vertex[] GetNeighbours(Vertex v)
         {
-            List<Edge> edges = v.neihbours;
+            List<Edge> edges = v.neighbours;
             Vertex[] ns = new Vertex[edges.Count];
 
             for(int i = 0; i < edges.Count; ++i)
@@ -143,7 +143,7 @@ namespace GameAI.NavigationWithDirichlet
 
         public override Edge[] GetEdges(Vertex v)
         {
-            return vertices[v.id].neihbours.ToArray();
+            return vertices[v.id].neighbours.ToArray();
         }
         #endregion
 
