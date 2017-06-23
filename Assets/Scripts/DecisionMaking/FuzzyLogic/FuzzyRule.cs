@@ -8,7 +8,7 @@ namespace GameAI.DecisionMaking.FuzzyLogic
     /// </summary>
     public class FuzzyRule : MonoBehaviour
     {
-        public List<int> statIds;
+        public List<int> stateIds;
         public int conclusionStateId;
     }
 }

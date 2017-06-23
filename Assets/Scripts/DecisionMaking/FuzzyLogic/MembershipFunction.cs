@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GameAI.DecisionMaking.FuzzyLogic
 {
     /// <summary>
-    /// 亲近度函数
+    /// 相性函数，相性值决定了角色会更加趋向于去做某些事情
     /// </summary>
     public class MembershipFunction : MonoBehaviour
     {
