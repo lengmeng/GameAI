@@ -10,7 +10,7 @@ namespace GameAI.DecisionMaking.FuzzyLogic
     public class FuzzyDecisionMaker : MonoBehaviour
     {
         /// <summary>
-        /// 进行决策
+        /// 进行决策，
         /// </summary>
         /// <param name="inputs">输入</param>
         /// <param name="mfList">相性数据</param>
