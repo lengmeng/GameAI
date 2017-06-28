@@ -52,6 +52,7 @@ namespace GameAI.DecisionMaking.FSM
                     State target;
                     if (transitions[i].GetType().Equals(typeof(TransitionDecision)))
                     {
+                        // 如果是合并类型的状态 则通过GetState获取下一个状态
                         TransitionDecision td = transitions[i] as TransitionDecision;
                         target = td.GetState();
                     }

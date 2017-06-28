@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GameAI.DecisionMaking.MarkovState
 {
     /// <summary>
-    /// 动作与目标的基类
+    /// 模版行为的基类
     /// </summary>
     public class ActionGOB : MonoBehaviour
     {

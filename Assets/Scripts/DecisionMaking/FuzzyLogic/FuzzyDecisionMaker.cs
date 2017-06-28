@@ -43,7 +43,7 @@ namespace GameAI.DecisionMaking.FuzzyLogic
                 }
             }
 
-            // 递归设置输出的相性值
+            // 设置输出的相性值
             foreach (FuzzyRule rule in rules)
             {
                 int outputId = rule.conclusionStateId;
