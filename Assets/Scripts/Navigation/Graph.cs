@@ -1,4 +1,5 @@
 ﻿using GameAi.Tools;
+using GameAI.TacticsSystem.Formation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -383,7 +384,7 @@ namespace GameAI.Navigation
             visited[src.id] = true;
 
             float bound = h(src, dst);
-            while(bound < Mathf.Infinity)
+            while (bound < Mathf.Infinity)
             {
                 // 通过深度优先递归查找
                 bound = RecursiveIDAstar(src, dst, bound, h, ref goal, ref visited);
@@ -400,7 +401,7 @@ namespace GameAI.Navigation
         private float RecursiveIDAstar(Vertex v, Vertex dst, float bound, Heuristic h, ref Vertex goal, ref bool[] visited)
         {
             // 如果已经找到终点 则结束递归
-            if (ReferenceEquals(v, dst)) 
+            if (ReferenceEquals(v, dst))
                 return Mathf.Infinity;
             Edge[] edges = GetEdges(v);
             // 若无相邻节点 则结束递归
@@ -408,14 +409,14 @@ namespace GameAI.Navigation
                 return Mathf.Infinity;
 
             float fn = Mathf.Infinity;
-            foreach(Edge e in edges)
+            foreach (Edge e in edges)
             {
                 int eId = e.vertex.id;
                 if (visited[eId])
                     continue;
                 visited[eId] = true;
                 // prev属性用于存储当前节点的下一个期望节点
-                e.vertex.prev = v; 
+                e.vertex.prev = v;
                 float f = h(v, dst);
                 float b;
                 if (f <= bound)
@@ -432,7 +433,7 @@ namespace GameAI.Navigation
         private List<Vertex> BuildPath(Vertex v)
         {
             List<Vertex> path = new List<Vertex>();
-            while(!ReferenceEquals(v, null))
+            while (!ReferenceEquals(v, null))
             {
                 path.Add(v);
                 v = v.prev;
@@ -454,7 +455,7 @@ namespace GameAI.Navigation
             isFinish = false;
             path = new List<Vertex>();
 
-            if(srcObj == null || dstObj == null)
+            if (srcObj == null || dstObj == null)
             {
                 path = new List<Vertex>();
                 isFinish = true;
@@ -521,14 +522,14 @@ namespace GameAI.Navigation
         public List<Vertex> Smooth(List<Vertex> path)
         {
             List<Vertex> newPath = new List<Vertex>();
-            if(path.Count == 0) return newPath;
+            if (path.Count == 0) return newPath;
             if (path.Count < 3) return path;
 
             newPath.Add(path[0]);
             int i, j;
-            for(i = 0; i < path.Count; ++i)
+            for (i = 0; i < path.Count; ++i)
             {
-                for(j = i + 1; i < path.Count; ++j)
+                for (j = i + 1; i < path.Count; ++j)
                 {
                     Vector3 origin = path[i].transform.position;
                     Vector3 destination = path[j].transform.position;
@@ -540,8 +541,8 @@ namespace GameAI.Navigation
                     Ray ray = new Ray(origin, direction);
                     RaycastHit[] hits;
                     hits = Physics.RaycastAll(ray, distance);
-                    
-                    foreach(RaycastHit hit in hits)
+
+                    foreach (RaycastHit hit in hits)
                     {
                         string tag = hit.collider.gameObject.tag;
                         if (tag.Equals("Wall"))
@@ -560,9 +561,111 @@ namespace GameAI.Navigation
             return newPath;
         }
         #endregion
+
+        #region 基于协调的A*寻路
+        /// <summary>
+        /// 用于设置所有的埋伏路径
+        /// </summary>
+        /// <param name="dstObj"></param>
+        /// <param name="lurkers"></param>
+        public void SetPathAmbush(GameObject dstObj, List<Lurker> lurkers)
+        {
+            Vertex dst = GetNearestVertex(dstObj.transform.position);
+            foreach (var lurker in lurkers)
+            {
+                Vertex src = GetNearestVertex(lurker.transform.position);
+                lurker.path = AStartMbush(src, dst, lurker, lurkers);
+            }
+
+        }
+
+
+        /// <summary>
+        /// 寻找到目的地的每一条路径 写的不明不白 大致思路是增加被使用过的节点的成本
+        /// 使得其他选择者去选择不重复的路径
+        /// </summary>
+        /// <param name="src"></param>
+        /// <param name="dst"></param>
+        /// <param name="lurker"></param>
+        /// <param name="lurkers"></param>
+        /// <param name="h"></param>
+        /// <returns></returns>
+        public List<Vertex> AStartMbush(Vertex src, Vertex dst, Lurker lurker, List<Lurker> lurkers, Heuristic h = null)
+        {
+            int graphSize = vertices.Count;
+            float[] extra = new float[graphSize];
+            float[] costs = new float[graphSize];
+
+            // 初始化统计数组
+            for (int i = 0; i < graphSize; i++)
+            {
+                extra[i] = 1f;
+                costs[i] = Mathf.Infinity;
+            }
+
+            foreach (Lurker l in lurkers)
+            {
+                foreach (Vertex v in l.path)
+                {
+                    extra[v.id] += 1f;
+                }
+            }
+
+            // 定义和初始化用于计算A*的变量
+            Edge[] successirs;
+            int[] previous = new int[graphSize];
+            for (int i = 0; i < graphSize; i++)
+            {
+                previous[i] = -1;
+            }
+            previous[src.id] = src.id;
+            float cost = 0;
+            Edge node = new Edge(src, 0);
+            BinaryHeap<Edge> frontier = new BinaryHeap<Edge>();
+            // 加入根节点，开始进行A*计算
+            frontier.Add(node);
+            while (frontier.Count != 0)
+            {
+                if (frontier.Count == 0)
+                    return new List<Vertex>();
+
+                node = frontier.Pop();
+                if (ReferenceEquals(node.vertex, dst))
+                {
+                    return BuildPath(src.id, node.vertex.id, ref previous);
+                }
+                int nodeId = node.vertex.id;
+                // 该导航点在此路径中的代价高于在其他路径的代价 则不选用
+                if (node.cost > costs[nodeId]) 
+                    continue;
+
+                successirs = GetEdges(node.vertex);
+                foreach (Edge e in successirs)
+                {
+                    int eId = e.vertex.id;
+                    if (previous[eId] != -1) // 排除已经记录过的导航点
+                        continue;
+
+                    cost = e.cost;
+                    cost += costs[dst.id];  // 这个值没有赋值过吧？
+                    cost += h(e.vertex, dst);
+
+                    if (cost < costs[eId])
+                    {
+                        Edge child;
+                        child = new Edge(e.vertex, cost);
+                        costs[eId] = cost;
+                        previous[eId] = nodeId;
+                        frontier.Remove(e);
+                        frontier.Add(child);
+                    }
+                }
+            }
+            return new List<Vertex>();
+        }
+
+        #endregion
+
+
     }
-
-
-
-
 }

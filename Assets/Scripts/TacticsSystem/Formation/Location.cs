@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameAI.TacticsSystem
+namespace GameAI.TacticsSystem.Formation
 {
     /// <summary>
-    /// 与Steering类似，通过给定编队的锚点和旋转来设置目标的位置和旋转
+    /// 数据类型 与Steering类似，通过给定编队的锚点和旋转来设置目标的位置和旋转
     /// </summary>
     public class Location
     {

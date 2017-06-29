@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameAI.TacticsSystem
+namespace GameAI.TacticsSystem.Formation
 {
     /// <summary>
-    /// 数据类型 存储有列表索引与目标对象
+    /// 数据类型 用于阵容列表 存储成员的索引与目标对象 代表一个成员
     /// </summary>
     public class SlotAssignment
     {

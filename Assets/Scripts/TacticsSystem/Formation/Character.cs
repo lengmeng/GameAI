@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameAI.TacticsSystem
+namespace GameAI.TacticsSystem.Formation
 {
     /// <summary>
-    /// 目标角色
+    /// 成员 可以放在代表成员的Agent之类的代码中
     /// </summary>
     public class Character : MonoBehaviour
     {
